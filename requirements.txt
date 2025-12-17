@@ -1,0 +1,10 @@
+fastapi==0.121.1
+uvicorn[standard]==0.38.0
+python-multipart==0.0.20
+pydantic==2.12.4
+nvidia-riva-client==2.19.0
+peewee==3.18.3
+numpy==2.0.2
+requests==2.32.5
+websockets==15.0.1
+ffmpeg-python==0.2.0

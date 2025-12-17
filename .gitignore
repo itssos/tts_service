@@ -1,0 +1,10 @@
+.venv
+.vscode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+database.db
+test.py
+audios_dialogo
