@@ -9,12 +9,12 @@ class SynthesizerRequest(BaseModel):
     )
     voice_name: str = Field(
         ...,
-        description="Nombre de la voz a utilizar",
-        example="Spanish-ES-Male-1.0"
+        description="Voz de dominio: MALE o FEMALE",
+        example="MALE"
     )
     language_code: str = Field(
         ...,
-        description="Código de idioma compatible con el motor TTS",
+        description="Idioma: es-ES / en-US (también se acepta ES-ES/EN-US)",
         example="es-ES"
     )
 
@@ -27,6 +27,7 @@ class SynthesizerRequest(BaseModel):
         description="Número de canales de audio"
     )
     output_format: str = Field(
-        "wav",
-        description="Formato de salida (wav, mp3)"
+        "WAV",
+        description="Formato de salida: WAV o MP3",
+        example="WAV"
     )

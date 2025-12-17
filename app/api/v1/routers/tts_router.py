@@ -6,68 +6,22 @@ from app.api.v1.dtos.synthesizer_request import SynthesizerRequest
 from app.utils.path_utils import build_audio_output_path
 from app.utils.file_utils import file_ready
 from app.domain.services.tts_service import synthesize_to_file
+from app.core.consts import TTS_VOICE_CATALOG
 
 router = APIRouter(
     prefix="/api/v1/tts",
     tags=["TTS"]
 )
 
-
 # ============================================================
-# Catálogo de voces
-# ============================================================
-VOICE_CATALOG = {
-    "en-US": {
-        "voices": [
-            "English-US.Female-1",
-            "English-US.Male-1",
-            "English-US.Female-Neutral",
-            "English-US.Male-Neutral",
-            "English-US.Female-Angry",
-            "English-US.Male-Angry",
-            "English-US.Female-Calm",
-            "English-US.Male-Calm",
-            "English-US.Female-Fearful",
-            "English-US.Female-Happy",
-            "English-US.Male-Happy",
-            "English-US.Female-Sad"
-        ]
-    },
-    "es-ES": {
-        "voices": [
-            "Spanish-ES-Female-1.0",
-            "Spanish-ES-Male-1.0"
-        ]
-    }
-}
-
-
-# ============================================================
-# Endpoint: Obtener lista plana de voces
+# Endpoint: Catálogo cerrado (lo que me pediste)
 # ============================================================
 @router.get(
     "/voices",
-    summary="Obtener todas las voces en formato de lista plana"
+    summary="Catálogo soportado de voces, idiomas y formatos"
 )
-async def get_available_voices() -> list[dict]:
-    """
-    Devuelve una lista plana con:
-    [
-      { "language_code": "en-US", "voice_name": "English-US.Female-1" },
-      ...
-    ]
-    """
-    result = []
-
-    for language_code, data in VOICE_CATALOG.items():
-        voices = data.get("voices", [])
-        for voice in voices:
-            result.append({
-                "language_code": language_code,
-                "voice_name": voice
-            })
-
-    return result
+async def get_tts_catalog() -> list[dict]:
+    return TTS_VOICE_CATALOG
 
 
 # ============================================================
@@ -80,9 +34,9 @@ async def get_available_voices() -> list[dict]:
 )
 async def synthesize(req: SynthesizerRequest = Body()):
     try:
-        audio_path = build_audio_output_path().replace(
-            ".wav", f".{req.output_format}"
-        )
+        # output_format llega como WAV/MP3; usamos extensión en minúsculas
+        out_ext = (req.output_format or "").strip().lower()
+        audio_path = build_audio_output_path().replace(".wav", f".{out_ext}")
 
         synthesize_to_file(
             text=req.text,
@@ -98,11 +52,11 @@ async def synthesize(req: SynthesizerRequest = Body()):
             raise RuntimeError("Audio no generado")
 
         timestamp = datetime.now().strftime("%d-%m-%y_%H_%M_%S")
-        filename = f"tts_{timestamp}.{req.output_format}"
+        filename = f"tts_{timestamp}.{out_ext}"
 
         return FileResponse(
             path=audio_path,
-            media_type=f"audio/{req.output_format}",
+            media_type=f"audio/{out_ext}",
             filename=filename
         )
 
